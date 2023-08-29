@@ -9,9 +9,9 @@ from googleapiclient.discovery import build
 if __name__ == '__main__':
     credentials = None
 
-    if os.path.exists('token.pickle'):
+    if os.path.exists('config/token.pickle'):
         print('Loading credentials from file...')
-        with open('token.pickle', "rb") as token:
+        with open('config/token.pickle', "rb") as token:
             credentials = pickle.load(token)
 
     if not credentials or not credentials.valid:
@@ -22,14 +22,14 @@ if __name__ == '__main__':
             print('Fetching new tokens')
 
             flow = InstalledAppFlow.from_client_secrets_file(
-                'client_secrets.json',
+                'config/client_secrets.json',
                 scopes=['https://www.googleapis.com/auth/youtube']
             )
 
             flow.run_local_server(port=8080, prompt='consent', authorization_prompt_message='')
             credentials = flow.credentials
 
-            with open('token.pickle', 'wb') as f:
+            with open('config/token.pickle', 'wb') as f:
                 print('Saving credentials for future use...')
                 pickle.dump(credentials, f)
 
