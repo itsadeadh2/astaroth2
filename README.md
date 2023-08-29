@@ -1,4 +1,4 @@
-# python-youtube-api
-Just messing around with Python and YouTube Data API using OAuth 2.0
+# Astaroth2
+Youtube reports generator made by me because I'm too broke to pay for VidIQ
 
-Inspired by [Corey Schafer](https://www.youtube.com/channel/UCCezIgC97PvUuR4_gbFUs5g)
+Inspired by [Matheus Ranzani](https://github.com/matheusranzani/python-youtube-api/tree/master)
