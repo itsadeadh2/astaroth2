@@ -1,6 +1,7 @@
 import os
 
 from infrastructure.google import Google
+from infrastructure.openai import OpenAi
 from model.channel import Channel
 
 
@@ -19,6 +20,11 @@ def load_competitors():
 
 if __name__ == "__main__":
     gg = Google()
+    transcript = None
+    with open('output.json', 'rb') as file:
+        transcript = file.read().decode('utf-8')
+    answer = OpenAi.analize_video(transcript=transcript)
+    print(answer)
     debug = True if os.getenv('DEBUG') == '1' else False
     competitors_ids = load_competitors()
     if debug:

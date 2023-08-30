@@ -1,3 +1,5 @@
+import json
+
 import isodate
 
 from infrastructure.google import Google
@@ -72,4 +74,6 @@ class Video:
 
     def get_caption(self):
         transcript = YouTubeTranscriptApi.get_transcript(video_id=self.video_id, languages=['pt'])
+        with open("output.json", "w", encoding='utf-8') as file:
+            file.write(json.dumps(transcript, ensure_ascii=False))
         return transcript
