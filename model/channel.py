@@ -7,6 +7,14 @@ from model.video import Video
 class Channel:
     __data = None
 
+    @staticmethod
+    def init_channels_from_id_list(ids_list: [str], google: Google):
+        channels_list = []
+        for channel_id in ids_list:
+            channel = Channel(channel_id=channel_id, google=google)
+            channels_list.append(channel)
+        return channels_list
+
     def __init__(self, channel_id: str, google: Google):
         self.__gg = google
         self.__youtube = google.youtube_client()
