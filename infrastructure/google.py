@@ -1,13 +1,19 @@
 import os
 import pickle
 
+from dotenv import load_dotenv
+
+
 from google.auth.transport.requests import Request
 from google_auth_oauthlib.flow import InstalledAppFlow
 from googleapiclient.discovery import build
 
 dirname = os.path.dirname(__file__)
-TOKEN_PATH = os.path.join(dirname, '../config/token.pickle')
-SECRETS_PATH = os.path.join(dirname, '../config/client_secrets.json')
+ENV_PATH = os.path.join(dirname, '../config/.env')
+load_dotenv(dotenv_path=ENV_PATH)
+CUSTOM_CREDENTIALS_SUFFIX = os.getenv('CUSTOM_CREDENTIALS_SUFFIX', '')
+TOKEN_PATH = os.path.join(dirname, f'../config/token{CUSTOM_CREDENTIALS_SUFFIX}.pickle')
+SECRETS_PATH = os.path.join(dirname, f'../config/client_secrets{CUSTOM_CREDENTIALS_SUFFIX}.json')
 
 
 class Google:
@@ -35,6 +41,10 @@ class Google:
 
                 flow.run_local_server(port=8080, prompt='consent', authorization_prompt_message='')
                 self.__credentials = flow.credentials
+
+                with open(TOKEN_PATH, 'wb') as f:
+                    print('Saving credentials for future use...')
+                    pickle.dump(self.__credentials, f)
 
     def youtube_client(self):
         return build('youtube', 'v3', credentials=self.__credentials)
