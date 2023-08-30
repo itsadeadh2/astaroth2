@@ -1,6 +1,5 @@
 import os
 
-from infrastructure.channel_finder import ChannelFinder
 from infrastructure.google import Google
 from model.channel import Channel
 
@@ -20,7 +19,6 @@ def load_competitors():
 
 if __name__ == "__main__":
     gg = Google()
-    cf = ChannelFinder(google=gg)
     competitors_ids = load_competitors()
     channels_list = Channel.init_channels_from_id_list(ids_list=competitors_ids, google=gg)
     for channel in channels_list:
