@@ -1,3 +1,6 @@
+# This is the original code from Matheus Ranzani (https://github.com/matheusranzani/python-youtube-api/tree/master)
+# Keeping it here for now for reference
+
 import os
 import pickle
 import isodate

@@ -19,8 +19,11 @@ def load_competitors():
 
 if __name__ == "__main__":
     gg = Google()
+    debug = True if os.getenv('DEBUG') == '1' else False
     competitors_ids = load_competitors()
-    channels_list = Channel.init_channels_from_id_list(ids_list=competitors_ids, google=gg)
+    if debug:
+        competitors_ids = competitors_ids[:1]
+    channels_list = Channel.retrieve_from_ids_list(ids_list=competitors_ids, google=gg)
     for channel in channels_list:
         print("\n=======================================")
         print(f"Channel Name: {channel.get_title()}")
@@ -28,3 +31,4 @@ if __name__ == "__main__":
         last_video = videos[0]
         print(f"Last video: {last_video.get_title()}")
         print("=======================================")
+        last_video.get_caption()
