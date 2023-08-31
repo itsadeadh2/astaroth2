@@ -23,16 +23,13 @@ class Google:
     def __set_credentials(self):
         self.__credentials = None
         if os.path.exists(TOKEN_PATH):
-            print('Loading credentials from file...')
             with open(TOKEN_PATH, "rb") as token:
                 self.__credentials = pickle.load(token)
 
         if not self.__credentials or not self.__credentials.valid:
             if self.__credentials and self.__credentials.expired and self.__credentials.refresh_token:
-                print('Refreshing access token...')
                 self.__credentials.refresh(Request())
             else:
-                print('Fetching new tokens')
                 scopes = [
                     'https://www.googleapis.com/auth/youtube.force-ssl',
                     'https://www.googleapis.com/auth/youtube'
@@ -46,7 +43,6 @@ class Google:
                 self.__credentials = flow.credentials
 
                 with open(TOKEN_PATH, 'wb') as f:
-                    print('Saving credentials for future use...')
                     pickle.dump(self.__credentials, f)
 
     def youtube_client(self):

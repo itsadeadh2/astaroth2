@@ -43,13 +43,11 @@ class Video:
 
     def get_title(self):
         self.__initialize_data()
-        title = self.__data['snippet']['title']
-        return title
+        return self.__data['snippet']['title']
 
     def get_description(self):
         self.__initialize_data()
-        description = self.__data['snippet']['description']
-        return description
+        return self.__data['snippet']['description']
 
     def get_duration(self):
         self.__initialize_data()
@@ -59,21 +57,18 @@ class Video:
 
     def get_likes_count(self):
         self.__initialize_data()
-        likes = self.__data['statistics']['likeCount']
-        return likes
+        return self.__data['statistics']['likeCount']
 
     def get_views_count(self):
         self.__initialize_data()
-        views = self.__data['statistics']['viewCount']
-        return views
+        return self.__data['statistics']['viewCount']
 
     def get_comment_count(self):
         self.__initialize_data()
-        comments = self.__data['statistics']['commentCount']
-        return comments
+        return self.__data['statistics']['commentCount']
 
     def get_caption(self):
-        transcript = YouTubeTranscriptApi.get_transcript(video_id=self.video_id, languages=['pt'])
+        transcript = YouTubeTranscriptApi.get_transcript(video_id=self.video_id)
         with open("output.json", "w", encoding='utf-8') as file:
             file.write(json.dumps(transcript, ensure_ascii=False))
         return transcript
