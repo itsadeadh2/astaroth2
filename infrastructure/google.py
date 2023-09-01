@@ -7,43 +7,48 @@ from dotenv import load_dotenv
 from google.auth.transport.requests import Request
 from google_auth_oauthlib.flow import InstalledAppFlow
 from googleapiclient.discovery import build
-
-dirname = os.path.dirname(__file__)
-ENV_PATH = os.path.join(dirname, '../config/.env')
-load_dotenv(dotenv_path=ENV_PATH)
-CUSTOM_CREDENTIALS_SUFFIX = os.getenv('CUSTOM_CREDENTIALS_SUFFIX', '')
-TOKEN_PATH = os.path.join(dirname, f'../config/token{CUSTOM_CREDENTIALS_SUFFIX}.pickle')
-SECRETS_PATH = os.path.join(dirname, f'../config/client_secrets{CUSTOM_CREDENTIALS_SUFFIX}.json')
+from infrastructure.path_client import PathClient
 
 
 class Google:
     def __init__(self):
-        self.__set_credentials()
 
-    def __set_credentials(self):
-        self.__credentials = None
-        if os.path.exists(TOKEN_PATH):
-            with open(TOKEN_PATH, "rb") as token:
-                self.__credentials = pickle.load(token)
+        youtube_scopes = [
+            'https://www.googleapis.com/auth/youtube.force-ssl',
+            'https://www.googleapis.com/auth/youtube'
+        ]
+        sheets_scopes = [
+            'https://www.googleapis.com/auth/spreadsheets'
+        ]
+        self.__youtube_credentials = Google.__authenticate(pickle_path=PathClient.youtube_token(), scopes=youtube_scopes)
+        self.__sheets_credentials = Google.__authenticate(pickle_path=PathClient.sheets_token(), scopes=sheets_scopes)
 
-        if not self.__credentials or not self.__credentials.valid:
-            if self.__credentials and self.__credentials.expired and self.__credentials.refresh_token:
-                self.__credentials.refresh(Request())
-            else:
-                scopes = [
-                    'https://www.googleapis.com/auth/youtube.force-ssl',
-                    'https://www.googleapis.com/auth/youtube'
-                ]
-                flow = InstalledAppFlow.from_client_secrets_file(
-                    SECRETS_PATH,
-                    scopes=scopes
-                )
+    @staticmethod
+    def __authenticate(pickle_path: str, scopes=[]):
+        credentials = None
+        if os.path.exists(pickle_path):
+            with open(pickle_path, "rb") as token:
+                credentials = pickle.load(token)
 
-                flow.run_local_server(port=8080, prompt='consent', authorization_prompt_message='')
-                self.__credentials = flow.credentials
+        if not credentials or not credentials.valid:
+            if credentials and credentials.expired and credentials.refresh_token:
+                credentials.refresh(Request())
+                return credentials
 
-                with open(TOKEN_PATH, 'wb') as f:
-                    pickle.dump(self.__credentials, f)
+            flow = InstalledAppFlow.from_client_secrets_file(
+                PathClient.client_secret(),
+                scopes=scopes
+            )
+
+            flow.run_local_server(port=8080, prompt='consent', authorization_prompt_message='')
+            credentials = flow.credentials
+
+            with open(pickle_path, 'wb') as f:
+                pickle.dump(credentials, f)
+        return credentials
 
     def youtube_client(self):
-        return build('youtube', 'v3', credentials=self.__credentials)
+        return build('youtube', 'v3', credentials=self.__youtube_credentials)
+
+    def sheets_client(self):
+        return build('sheets', 'v4', credentials=self.__sheets_credentials)

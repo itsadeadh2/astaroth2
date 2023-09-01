@@ -58,7 +58,7 @@ class Channel:
 
     def get_videos(self, max_results=10) -> List[Video]:
         search_request = self.__youtube.search().list(part="snippet", channelId=self.channel_id, order="date",
-                                                      maxResults=max_results)
+                                                      maxResults=max_results, type="video")
 
         videos_data = search_request.execute()
         video_ids = [entry['id']['videoId'] for entry in videos_data['items']]
