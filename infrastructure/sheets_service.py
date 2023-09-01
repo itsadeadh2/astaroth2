@@ -10,6 +10,7 @@ class SheetData:
     def __init__(self, with_headers=True):
         self.__headers_added = False
         self.__headers = []
+        self.__rows = []
 
     def __add_headers(self, headers):
         if self.__headers_added:
@@ -47,7 +48,6 @@ class SheetData:
 
 
 class SheetsService:
-
     def __init__(self, google: Google):
         self.__sheets = google.sheets_client()
         self.__sheet_id = os.getenv('REPORT_SHEET_ID')
@@ -58,9 +58,11 @@ class SheetsService:
         }
         if page_name:
             update_range = f'{page_name}!{update_range}'
+        self.__sheets.spreadsheets().values().clear(
+            spreadsheetId=self.__sheet_id, range=update_range).execute()
         self.__sheets.spreadsheets().values().update(
             spreadsheetId=self.__sheet_id, range=update_range,
-            valueInputOption='USER_ENTERED', body=body).execute()
+            valueInputOption='RAW', body=body).execute()
 
     def add_page(self, page_name: str, ):
         body = {
@@ -75,11 +77,15 @@ class SheetsService:
 
         self.__sheets.spreadsheets().batchUpdate(spreadsheetId=self.__sheet_id, body=body).execute()
 
-    def get_pages(self):
-        result = self.__sheets.spreadsheets().get_rows(
-            spreadsheetId=self.__sheet_id).execute()
+    def get_pages_names(self):
+        pages = self.get_pages()
+        result = [page['properties']['title'] for page in pages['sheets']]
         return result
 
+    def get_pages(self):
+        result = self.__sheets.spreadsheets().get(
+            spreadsheetId=self.__sheet_id).execute()
+        return result
 
 if __name__ == "__main__":
     sheets = SheetsService(google=Google())

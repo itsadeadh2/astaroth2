@@ -4,7 +4,7 @@ import isodate
 
 from infrastructure.google import Google
 from youtube_transcript_api import YouTubeTranscriptApi
-
+from typing import List
 
 class Video:
     def __init__(self, video_id: str, google: Google, data=None):
@@ -15,21 +15,37 @@ class Video:
 
     @staticmethod
     def retrieve_from_ids_list(ids_list: [str], google: Google):
-        ids_string = ''
-        for video_id in ids_list:
-            ids_string += f'{video_id},'
+        def divide_chunks(l, n):
+            for i in range(0, len(l), n):
+                yield l[i:i + n]
 
-        youtube = google.youtube_client()
-        request = youtube.videos().list(
-            part="snippet,contentDetails,statistics",
-            id=ids_string,
-        )
-        response = request.execute()
+        max_ids_allowed = 20
+        id_chunks = list(divide_chunks(ids_list, max_ids_allowed))
         videos_list = []
-        for entry in response['items']:
-            video = Video(video_id=entry['id'], google=google, data=entry)
-            videos_list.append(video)
+
+        for chunked_id_list in id_chunks:
+            ids_string = ''
+            for video_id in chunked_id_list:
+                ids_string += f'{video_id},'
+
+            youtube = google.youtube_client()
+            request = youtube.videos().list(
+                part="snippet,contentDetails,statistics",
+                id=ids_string,
+            )
+            response = request.execute()
+            for entry in response['items']:
+                video = Video(video_id=entry['id'], google=google, data=entry)
+                videos_list.append(video)
         return videos_list
+
+    @staticmethod
+    def filter_by_min_duration(videos, min_duration=60):
+        filtered_videos = []
+        for video in videos:
+            if video.get_duration() > min_duration:
+                filtered_videos.append(video)
+        return filtered_videos
 
     def __initialize_data(self):
         if self.__data:
@@ -57,7 +73,10 @@ class Video:
 
     def get_likes_count(self):
         self.__initialize_data()
-        return self.__data['statistics']['likeCount']
+        try:
+            return self.__data['statistics']['likeCount']
+        except:
+            return 1
 
     def get_views_count(self):
         self.__initialize_data()

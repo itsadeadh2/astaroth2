@@ -29,4 +29,5 @@ if __name__ == "__main__":
     channels_list = Channel.retrieve_from_ids_list(ids_list=competitors_ids, google=gg)
 
     report = VTLSheetsReport(channels=channels_list, google=gg)
-    report.highest_vtl_per_channel(debug=True)
+    report.videos_ranked_by_vtl(sample_size=100)
+    report.channels_ranked_by_vtl(sample_size=100)

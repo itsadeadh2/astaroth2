@@ -13,9 +13,5 @@ class PathClient:
         return os.path.join(dirname, f'../config/client_secrets{CUSTOM_CREDENTIALS_SUFFIX}.json')
 
     @staticmethod
-    def youtube_token():
-        return os.path.join(dirname, f'../config/youtube_token{CUSTOM_CREDENTIALS_SUFFIX}.pickle')
-
-    @staticmethod
-    def sheets_token():
-        return os.path.join(dirname, f'../config/sheets_token{CUSTOM_CREDENTIALS_SUFFIX}.pickle')
+    def google_token():
+        return os.path.join(dirname, f'../config/token{CUSTOM_CREDENTIALS_SUFFIX}.pickle')

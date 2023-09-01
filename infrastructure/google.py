@@ -15,13 +15,10 @@ class Google:
 
         youtube_scopes = [
             'https://www.googleapis.com/auth/youtube.force-ssl',
-            'https://www.googleapis.com/auth/youtube'
-        ]
-        sheets_scopes = [
+            'https://www.googleapis.com/auth/youtube',
             'https://www.googleapis.com/auth/spreadsheets'
         ]
-        self.__youtube_credentials = Google.__authenticate(pickle_path=PathClient.youtube_token(), scopes=youtube_scopes)
-        self.__sheets_credentials = Google.__authenticate(pickle_path=PathClient.sheets_token(), scopes=sheets_scopes)
+        self.__credentials = Google.__authenticate(pickle_path=PathClient.google_token(), scopes=youtube_scopes)
 
     @staticmethod
     def __authenticate(pickle_path: str, scopes=[]):
@@ -48,7 +45,7 @@ class Google:
         return credentials
 
     def youtube_client(self):
-        return build('youtube', 'v3', credentials=self.__youtube_credentials)
+        return build('youtube', 'v3', credentials=self.__credentials)
 
     def sheets_client(self):
-        return build('sheets', 'v4', credentials=self.__sheets_credentials)
+        return build('sheets', 'v4', credentials=self.__credentials)

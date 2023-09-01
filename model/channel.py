@@ -56,13 +56,28 @@ class Channel:
         self.__initialize_data()
         return self.__data['statistics']['videoCount']
 
-    def get_videos(self, max_results=10) -> List[Video]:
-        search_request = self.__youtube.search().list(part="snippet", channelId=self.channel_id, order="date",
-                                                      maxResults=max_results, type="video")
+    def get_videos(self, max_results=10, min_duration=60) -> List[Video]:
+        videos_list: List[Video] = []
+        next_page_token = None
+        more_results = True
+        while len(videos_list) < max_results and more_results:
+            params = {
+                "part": "snippet",
+                "channelId": self.channel_id,
+                "order": "date",
+                "maxResults": max_results,
+                "type": "video"
+            }
+            if next_page_token:
+                params['pageToken'] = next_page_token
+            search_request = self.__youtube.search().list(**params)
+            videos_data = search_request.execute()
+            next_page_token = videos_data.get('nextPageToken', '')
+            if not next_page_token:
+                more_results = False
+            video_ids = [entry['id']['videoId'] for entry in videos_data['items']]
+            videos_list += Video.retrieve_from_ids_list(ids_list=video_ids, google=self.__gg)
+            videos_list = Video.filter_by_min_duration(videos_list, min_duration=min_duration)
 
-        videos_data = search_request.execute()
-        video_ids = [entry['id']['videoId'] for entry in videos_data['items']]
-        videos_list = Video.retrieve_from_ids_list(ids_list=video_ids, google=self.__gg)
-
-        return videos_list
+        return videos_list[:max_results]
 
